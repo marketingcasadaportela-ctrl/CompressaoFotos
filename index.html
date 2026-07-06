@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PortalPrep · Casa da Portela — Imagens prontas para portais imobiliários</title>
+<meta name="description" content="Redimensiona e converte fotografias em lote para JPG ou PNG, com 1080 px de altura e 72 dpi. Tudo no navegador — as imagens nunca saem do teu computador.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23005395'/><text x='50' y='68' font-size='52' text-anchor='middle' font-family='monospace' fill='white'>1080</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --paper:#F4F5F2;
+    --card:#FFFFFF;
+    --ink:#17191C;
+    --muted:#6B7076;
+    --line:#DDE0DA;
+    --accent:#005395;
+    --accent-ink:#013E70;
+    --ok:#1E7F4F;
+    --radius:14px;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --sans:'Space Grotesk',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.5;
+    min-height:100vh;
+    padding-bottom:110px;
+  }
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+
+
+  .cp-head{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:18px}
+  .cp-logo{height:56px;width:auto;display:block}
+  .cp-sep{width:1px;height:44px;background:var(--line)}
+  @media (max-width:560px){.cp-logo{height:44px}.cp-sep{display:none}}
+  /* ---------- header ---------- */
+  header{padding:44px 0 8px}
+  .brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .brand h1{font-size:clamp(28px,5vw,40px);font-weight:700;letter-spacing:-.02em}
+  .brand h1 em{font-style:normal;color:var(--accent)}
+  .brand .sub{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  header p.lead{margin-top:10px;max-width:56ch;color:var(--muted)}
+  header p.lead strong{color:var(--ink);font-weight:500}
+
+  /* ---------- spec ticket (assinatura) ---------- */
+  .ticket{
+    margin:26px 0 30px;
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:10px 10px 0 0;
+    padding:14px 18px 16px;
+    position:relative;
+    display:flex;gap:0;flex-wrap:wrap;
+    font-family:var(--mono);
+  }
+  .ticket::after{ /* rebordo picotado */
+    content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;
+    background:radial-gradient(circle at 6px -2px, transparent 6px, var(--ink) 6.5px);
+    background-size:16px 8px;background-repeat:repeat-x;
+  }
+  .ticket .spec{flex:1 1 150px;padding:2px 18px;border-left:1px dashed rgba(244,245,242,.25)}
+  .ticket .spec:first-child{border-left:none;padding-left:0}
+  .ticket .k{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,245,242,.55)}
+  .ticket .v{font-size:18px;font-weight:600}
+  .ticket .v small{font-size:12px;font-weight:400;color:rgba(244,245,242,.6)}
+  .ticket .v.acc{color:var(--accent)}
+
+  /* ---------- dropzone ---------- */
+  .drop{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:56px 24px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .15s, background .15s, transform .1s;
+  }
+  .drop:hover{border-color:var(--accent)}
+  .drop.over{border-color:var(--accent);background:#E9F1F8;transform:scale(1.004)}
+  /* marcas de recorte nos cantos */
+  .drop .corner{position:absolute;width:18px;height:18px;border-color:var(--accent);border-style:solid;border-width:0}
+  .drop .c1{top:10px;left:10px;border-top-width:2px;border-left-width:2px}
+  .drop .c2{top:10px;right:10px;border-top-width:2px;border-right-width:2px}
+  .drop .c3{bottom:10px;left:10px;border-bottom-width:2px;border-left-width:2px}
+  .drop .c4{bottom:10px;right:10px;border-bottom-width:2px;border-right-width:2px}
+  .drop .arrow{
+    width:52px;height:52px;border-radius:50%;
+    background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 16px;font-size:24px;
+  }
+  .drop h2{font-size:20px;font-weight:600}
+  .drop p{color:var(--muted);font-size:14px;margin-top:4px}
+  .drop input{display:none}
+
+  /* ---------- controlos ---------- */
+  .controls{
+    display:flex;flex-wrap:wrap;gap:14px;align-items:center;
+    margin:18px 0 26px;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 18px;
+  }
+  .ctl-label{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .seg button{
+    font-family:var(--sans);font-size:14px;font-weight:500;
+    padding:8px 20px;border:none;background:transparent;color:var(--muted);cursor:pointer;
+  }
+  .seg button.on{background:var(--ink);color:#fff}
+  .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .qwrap{display:flex;align-items:center;gap:10px;flex:1 1 220px;min-width:200px}
+  .qwrap input[type=range]{flex:1;accent-color:var(--accent)}
+  .qval{font-family:var(--mono);font-size:14px;font-weight:600;min-width:44px;text-align:right}
+  .qwrap.off{opacity:.35;pointer-events:none}
+  .chk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);cursor:pointer;user-select:none}
+  .chk input{accent-color:var(--accent);width:16px;height:16px;cursor:pointer}
+
+  /* ---------- lista ---------- */
+  .list{display:flex;flex-direction:column;gap:10px}
+  .item{
+    display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;
+  }
+  .item img.thumb{width:64px;height:48px;object-fit:cover;border-radius:6px;background:#EDEEEA}
+  .item .name{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .item .meta{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px}
+  .item .meta .dim{color:var(--ink)}
+  .item .save{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ok);text-align:right;white-space:nowrap}
+  .item .save.grew{color:#B3541B}
+  .item .status{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .item a.dl{
+    font-family:var(--mono);font-size:12px;color:var(--accent-ink);text-decoration:none;
+    border:1px solid var(--line);border-radius:7px;padding:4px 10px;white-space:nowrap;
+  }
+  .item a.dl:hover{border-color:var(--accent);background:#E9F1F8}
+  .item .right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .item.err{border-color:#E4B4A6}
+  .item.err .status{color:#B33A1B}
+
+  /* ---------- barra fixa ---------- */
+  .bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:10;
+    background:var(--card);border-top:1px solid var(--line);
+    padding:12px 20px;
+    box-shadow:0 -6px 24px rgba(23,25,28,.06);
+  }
+  .bar-in{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .totals{display:flex;gap:22px;flex:1;font-family:var(--mono)}
+  .totals .t .k{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .totals .t .v{font-size:15px;font-weight:600}
+  .totals .t .v.acc{color:var(--ok)}
+  .btn{
+    font-family:var(--sans);font-size:15px;font-weight:600;
+    border:none;border-radius:10px;padding:12px 22px;cursor:pointer;
+    transition:transform .08s, box-shadow .12s;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .btn-zip{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(0,83,149,.30)}
+  .btn-zip:hover{box-shadow:0 6px 18px rgba(0,83,149,.40)}
+  .btn-zip:disabled{background:#CFC9C4;box-shadow:none;cursor:not-allowed}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  .btn-ghost:hover{color:var(--ink);border-color:var(--muted)}
+
+  footer{margin-top:56px;padding:20px 0;color:var(--muted);font-size:13px}
+  footer .priv{font-family:var(--mono);font-size:12px}
+
+  @media (max-width:560px){
+    .item{grid-template-columns:52px 1fr}
+    .item .right{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}
+    .totals{gap:14px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="cp-head">
+      <svg class="cp-logo" role="img" aria-label="Casa da Portela" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 231.62 85.89">
+  <defs>
+    <style>
+      .cplogo-1 {
+        fill: #98989a;
+      }
+
+      .cplogo-2 {
+        fill: #212721;
+      }
+
+      .cplogo-3 {
+        fill: #005395;
+      }
+    </style>
+  </defs>
+  <g>
+    <path class="cplogo-2" d="M113.44,22.75c-1.04-.66-2.99-1.29-5.04-1.29-4.07,0-7.89,2.68-7.89,7.54s3.75,7.57,8.03,7.57c2.19,0,3.89-.42,5.14-1.11l-.38,3.86c-1.29.66-2.88.94-5.39.94-5.63,0-11.81-3.86-11.81-11.33s6.25-11.36,11.81-11.36c2.85,0,5,.63,6.32,1.39l-.8,3.79Z"/>
+    <path class="cplogo-2" d="M132.76,40.02l-2.12-5.35h-7.85l-2.12,5.35h-4.17l9.07-22.41h2.47l9.1,22.41h-4.38ZM127.55,26.47c-.28-.66-.59-1.56-.8-2.4h-.07c-.21.83-.52,1.74-.8,2.4l-1.84,4.76h5.35l-1.84-4.76Z"/>
+    <path class="cplogo-2" d="M146.03,40.27c-2.43,0-4.69-.7-5.94-1.49l-.45-4.27c1.7,1.25,4.03,2.08,6.29,2.08s3.58-1.08,3.58-2.74-.97-2.57-3.3-3.27c-4.14-1.22-6.15-3.41-6.15-6.71s2.5-6.29,7.23-6.29c2.33,0,4.31.7,5.14,1.25l-.8,3.58c-.87-.52-2.57-1.22-4.24-1.22-2.02,0-3.13,1.11-3.13,2.43s1.04,2.12,3.06,2.74c4,1.25,6.57,3.23,6.57,7.16s-2.71,6.74-7.85,6.74Z"/>
+    <path class="cplogo-2" d="M171.99,40.02l-2.12-5.35h-7.85l-2.12,5.35h-4.17l9.07-22.41h2.47l9.1,22.41h-4.38ZM166.78,26.47c-.28-.66-.59-1.56-.8-2.4h-.07c-.21.83-.52,1.74-.8,2.4l-1.84,4.76h5.35l-1.84-4.76Z"/>
+    <path class="cplogo-2" d="M191.35,40.02h-6.44v-19.95h6.44c5.63,0,10.72,3.66,10.72,9.97s-5.07,9.97-10.72,9.97ZM190.85,23.36h-2.06v13.44h2.06c3.97,0,7.25-2.19,7.25-6.72s-3.28-6.72-7.25-6.72Z"/>
+    <path class="cplogo-2" d="M217.3,40.02l-1.91-4.82h-7.07l-1.91,4.82h-3.75l8.16-20.17h2.22l8.19,20.17h-3.94ZM212.61,27.83c-.25-.59-.53-1.41-.72-2.16h-.06c-.19.75-.47,1.56-.72,2.16l-1.66,4.28h4.82l-1.66-4.28Z"/>
+    <path class="cplogo-2" d="M104.39,58.16h-3.39v9h-4.18v-21.66h7.57c3.36,0,6.76,2.24,6.76,6.31s-3.36,6.35-6.76,6.35ZM103.71,49.06h-2.72v5.7h2.72c1.66,0,3.22-.88,3.22-2.85s-1.56-2.85-3.22-2.85Z"/>
+    <path class="cplogo-2" d="M125.64,67.63c-5.87,0-11.58-4.31-11.58-11.34s5.67-11.27,11.58-11.27,11.54,4.31,11.54,11.27-5.67,11.34-11.54,11.34ZM125.64,48.82c-3.63,0-7.23,2.85-7.23,7.54s3.6,7.57,7.23,7.57,7.23-2.85,7.23-7.57-3.67-7.54-7.23-7.54Z"/>
+    <path class="cplogo-2" d="M153.88,67.15l-6.31-9h-1.93v9h-4.18v-21.66h7.23c3.36,0,6.76,2.24,6.76,6.31,0,2.72-1.6,4.65-3.56,5.5l7.13,9.84h-5.13ZM148.01,49.06h-2.38v5.7h2.38c1.63,0,3.22-.88,3.22-2.85s-1.6-2.85-3.22-2.85Z"/>
+    <path class="cplogo-2" d="M169.45,49.06v18.09h-4.28v-18.09h-6.59v-3.56h17.45v3.56h-6.59Z"/>
+    <path class="cplogo-2" d="M179.11,67.15v-21.66h12.05v3.56h-7.81v5.43h6.48v3.6h-6.48v5.5h8.93v3.56h-13.17Z"/>
+    <path class="cplogo-2" d="M195.94,67.15v-21.66h4.28v18.09h8.86v3.56h-13.14Z"/>
+    <path class="cplogo-2" d="M227.34,67.15l-2.07-5.23h-7.67l-2.07,5.23h-4.07l8.86-21.89h2.41l8.89,21.89h-4.28ZM222.25,53.92c-.27-.64-.58-1.53-.78-2.34h-.07c-.2.81-.51,1.7-.78,2.34l-1.8,4.65h5.23l-1.8-4.65Z"/>
+    <path class="cplogo-1" d="M96.14,83.88v-10.67h1.37v10.67h-1.37Z"/>
+    <path class="cplogo-1" d="M112.92,83.88l-.43-5.17c-.07-.82-.15-1.76-.18-2.61h-.03c-.35.82-.87,1.89-1.25,2.66l-2.58,5.2h-.52l-2.59-5.2c-.38-.75-.87-1.77-1.25-2.63h-.03c-.03.85-.1,1.86-.17,2.58l-.42,5.17h-1.24l.89-10.67h.87l2.89,5.72c.44.87.97,1.97,1.35,2.88h.03c.37-.9.87-1.92,1.34-2.88l2.86-5.72h.87l.92,10.67h-1.32Z"/>
+    <path class="cplogo-1" d="M123.95,84.08c-2.89,0-5.62-2.16-5.62-5.55s2.73-5.52,5.62-5.52,5.62,2.16,5.62,5.52-2.73,5.55-5.62,5.55ZM123.95,74.23c-2.16,0-4.23,1.64-4.23,4.33s2.07,4.33,4.23,4.33,4.23-1.64,4.23-4.33-2.11-4.33-4.23-4.33Z"/>
+    <path class="cplogo-1" d="M137.35,83.88h-3.35v-10.67h2.81c1.46,0,2.93.95,2.93,2.73,0,.82-.42,1.64-1.09,1.92,1.1.27,2.12,1.4,2.12,2.81,0,2.11-1.74,3.21-3.43,3.21ZM136.59,74.34h-1.29v3.13h1.3c.95,0,1.76-.5,1.76-1.54s-.8-1.59-1.77-1.59ZM137.05,78.59h-1.74v4.15h1.77c1.22,0,2.32-.7,2.32-2.07s-1.12-2.07-2.36-2.07Z"/>
+    <path class="cplogo-1" d="M145.37,83.88v-10.67h1.37v10.67h-1.37Z"/>
+    <path class="cplogo-1" d="M151.78,83.88v-10.67h1.37v9.48h4.83v1.19h-6.21Z"/>
+    <path class="cplogo-1" d="M162,83.88v-10.67h1.37v10.67h-1.37Z"/>
+    <path class="cplogo-1" d="M170.37,80.33l-1.17,3.55h-1.51l3.85-11.27h1.74l3.85,11.27h-1.56l-1.2-3.55h-4ZM174.09,79.19l-1.12-3.24c-.25-.74-.42-1.4-.59-2.06h-.03c-.17.65-.33,1.35-.57,2.04l-1.1,3.26h3.41ZM174.87,70.04l-2.14,1.96h-1.19l1.56-1.96h1.77Z"/>
+    <path class="cplogo-1" d="M181.41,72.75c.74-.13,1.81-.23,2.79-.23,1.56,0,2.58.3,3.26.92.55.5.89,1.27.89,2.16,0,1.47-.94,2.46-2.11,2.86v.05c.85.3,1.37,1.1,1.64,2.27.37,1.57.64,2.66.87,3.09h-1.51c-.18-.33-.44-1.29-.74-2.69-.33-1.56-.95-2.14-2.27-2.19h-1.37v4.88h-1.46v-11.12ZM182.87,77.89h1.49c1.56,0,2.54-.85,2.54-2.14,0-1.45-1.05-2.09-2.59-2.09-.7,0-1.19.05-1.44.12v4.11Z"/>
+    <path class="cplogo-1" d="M194.49,72.6v11.27h-1.47v-11.27h1.47Z"/>
+    <path class="cplogo-1" d="M201.48,80.33l-1.17,3.55h-1.51l3.85-11.27h1.74l3.85,11.27h-1.56l-1.2-3.55h-4ZM205.19,79.19l-1.12-3.24c-.25-.74-.42-1.4-.59-2.06h-.03c-.17.65-.33,1.35-.57,2.04l-1.1,3.26h3.41Z"/>
+  </g>
+  <g>
+    <path class="cplogo-3" d="M82.43,45.88h-14.59s0,0,0,0h-3.17c-1.06,2.03-3.18,3.41-5.62,3.41-5.56,0-10.08,4.52-10.08,10.08,0,3.5-2.85,6.35-6.35,6.35s-6.32-2.83-6.34-6.31c0-5.5-4.43-10.02-9.89-10.13-3.43-.07-6.22-2.91-6.22-6.34h0c0-3.43,2.79-6.27,6.22-6.34,5.45-.11,9.89-4.63,9.89-10.13.02-3.48,2.87-6.31,6.34-6.31s6.35,2.85,6.35,6.35c0,5.56,4.52,10.08,10.08,10.08,2.44,0,4.56,1.39,5.62,3.41h3.17s0,0,0,0h14.59s2.95,0,2.95,0c-1.11-10.15-7.9-18.76-17.69-22.14C63.99,7.15,54.01,0,42.61,0s-21.51,7.38-25.12,18.03C7,21.87,0,31.78,0,42.94h0c0,11.16,7,21.08,17.49,24.91,3.61,10.65,13.83,18.03,25.12,18.03s21.38-7.15,25.07-17.87c9.79-3.37,16.58-11.99,17.69-22.14h-2.95ZM66.09,65.46l-.73.23-.23.73c-3.1,9.89-12.15,16.54-22.51,16.54s-19.54-6.86-22.55-16.67l-.22-.72-.71-.24c-9.69-3.24-16.2-12.23-16.2-22.38h0c0-10.15,6.51-19.14,16.2-22.38l.71-.24.22-.72c3.01-9.82,12.29-16.67,22.55-16.67s19.41,6.65,22.51,16.54l.23.73.73.23c7.97,2.5,13.8,8.86,15.78,16.65h-15.66c-1.7-2.08-4.28-3.41-7.17-3.41-3.94,0-7.15-3.21-7.15-7.15,0-5.11-4.16-9.28-9.28-9.28s-9.25,4.14-9.27,9.28c0,3.87-3.15,7.08-7.01,7.15-5.01.1-9.09,4.26-9.09,9.27h0c0,5.01,4.08,9.17,9.09,9.27,3.87.08,7.01,3.28,7.01,7.15.03,5.15,4.19,9.28,9.27,9.28s9.28-4.16,9.28-9.28c0-3.95,3.21-7.15,7.15-7.15,2.89,0,5.47-1.33,7.17-3.41h15.66c-1.98,7.79-7.82,14.15-15.78,16.65Z"/>
+    <path class="cplogo-3" d="M57.61,57.91s-.03.01-.03.03v1.43c0,8.43-7.01,15.26-15.51,14.95-8.11-.29-14.42-7.23-14.42-15.35v-1.01s-.01-.03-.03-.03l-1.41-.04c-8.09-.16-14.66-6.87-14.66-14.96h0c0-8.09,6.58-14.8,14.66-14.96l1.41-.04s.03-.01.03-.03v-1.01c0-8.12,6.3-15.06,14.42-15.35,8.5-.31,15.51,6.52,15.51,14.96v1.43s.01.03.03.03h1.04c5.01,0,9.58,2.4,12.4,6.17h3.54c-2.85-5.03-8.05-8.56-14.12-9.04-.01,0-.03-.01-.03-.03-.73-9.2-8.45-16.46-17.84-16.46s-17.12,7.28-17.84,16.5c0,.01-.01.03-.03.03-9.01.9-16.13,8.6-16.13,17.8h0c0,9.2,7.12,16.91,16.13,17.8.01,0,.03.01.03.03.72,9.22,8.45,16.5,17.84,16.5s17.1-7.26,17.84-16.46c0-.01.01-.03.03-.03,6.06-.48,11.27-4.01,14.12-9.04h-3.54c-2.82,3.76-7.39,6.17-12.4,6.17h-1.04Z"/>
+  </g>
+</svg>
+      <span class="cp-sep" aria-hidden="true"></span>
+      <div>
+        <div class="brand">
+      <h1>Portal<em>Prep</em></h1>
+          <span class="sub">// preparador de imagens para portais</span>
+        </div>
+      </div>
+    </div>
+    <p class="lead">Arrasta as fotografias, escolhe JPG ou PNG e recebe tudo redimensionado e leve, pronto a carregar nos portais. <strong>As imagens nunca saem do teu navegador.</strong></p>
+  </header>
+
+  <!-- talão de especificações -->
+  <div class="ticket" role="note" aria-label="Especificações fixas de saída">
+    <div class="spec"><div class="k">Altura</div><div class="v acc">1080 <small>px</small></div></div>
+    <div class="spec"><div class="k">Largura</div><div class="v">proporcional</div></div>
+    <div class="spec"><div class="k">Resolução</div><div class="v">72 <small>dpi</small></div></div>
+    <div class="spec"><div class="k">Processamento</div><div class="v">local <small>· sem uploads</small></div></div>
+  </div>
+
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="Adicionar imagens">
+    <span class="corner c1"></span><span class="corner c2"></span>
+    <span class="corner c3"></span><span class="corner c4"></span>
+    <div class="arrow">↓</div>
+    <h2>Arrasta as imagens para aqui</h2>
+    <p>ou clica para selecionar · JPG, PNG, WebP · em lote</p>
+    <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple>
+  </div>
+
+  <div class="controls">
+    <span class="ctl-label">Formato</span>
+    <div class="seg" role="group" aria-label="Formato de saída">
+      <button id="fmtJpg" class="on" type="button">JPG</button>
+      <button id="fmtPng" type="button">PNG</button>
+    </div>
+    <div class="qwrap" id="qwrap">
+      <span class="ctl-label">Qualidade</span>
+      <input type="range" id="quality" min="40" max="100" value="80" aria-label="Qualidade JPG">
+      <span class="qval" id="qval">80%</span>
+    </div>
+    <label class="chk"><input type="checkbox" id="upscale"> Ampliar imagens mais pequenas que 1080&nbsp;px</label>
+  </div>
+
+  <div class="list" id="list" aria-live="polite"></div>
+
+  <footer>
+    <span class="priv">© Casa da Portela · PortalPrep — ferramenta interna · processamento 100% local, nada é enviado para nenhum servidor.</span>
+  </footer>
+</div>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="totals">
+      <div class="t"><div class="k">Ficheiros</div><div class="v" id="tCount">0</div></div>
+      <div class="t"><div class="k">Original</div><div class="v" id="tOrig">—</div></div>
+      <div class="t"><div class="k">Novo</div><div class="v" id="tNew">—</div></div>
+      <div class="t"><div class="k">Economia</div><div class="v acc" id="tSave">—</div></div>
+    </div>
+    <button class="btn btn-ghost" id="clearBtn" type="button">Limpar</button>
+    <button class="btn btn-zip" id="zipBtn" type="button" disabled>↓ Baixar ZIP</button>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* ---------------- estado ---------------- */
+const TARGET_H = 1080;
+const DPI = 72;
+let outFmt = "jpg";              // 'jpg' | 'png'
+let items = [];                  // {id,file,name,origSize,newSize,blob,url,thumbUrl,dimTxt,status}
+let seq = 0;
+
+/* ---------------- elementos ---------------- */
+const $ = id => document.getElementById(id);
+const drop=$("drop"), fileInput=$("fileInput"), listEl=$("list");
+const fmtJpg=$("fmtJpg"), fmtPng=$("fmtPng"), qwrap=$("qwrap"), quality=$("quality"), qval=$("qval");
+const upscale=$("upscale"), zipBtn=$("zipBtn"), clearBtn=$("clearBtn");
+const tCount=$("tCount"), tOrig=$("tOrig"), tNew=$("tNew"), tSave=$("tSave");
+
+/* ---------------- utilitários ---------------- */
+const fmtBytes = b => {
+  if (b == null) return "—";
+  if (b < 1024) return b + " B";
+  if (b < 1048576) return (b/1024).toFixed(0) + " KB";
+  return (b/1048576).toFixed(2) + " MB";
+};
+const baseName = n => n.replace(/\.[^.]+$/, "");
+
+/* ---------------- DPI: JPG (segmento JFIF APP0) ---------------- */
+async function setJpegDpi(blob, dpi){
+  const buf = new Uint8Array(await blob.arrayBuffer());
+  // SOI
+  if (buf[0]!==0xFF || buf[1]!==0xD8) return blob;
+  // APP0 JFIF existente?
+  if (buf[2]===0xFF && buf[3]===0xE0 &&
+      buf[6]===0x4A && buf[7]===0x46 && buf[8]===0x49 && buf[9]===0x46 && buf[10]===0x00){
+    buf[13]=1;                       // unidades: dpi
+    buf[14]=(dpi>>8)&0xFF; buf[15]=dpi&0xFF;
+    buf[16]=(dpi>>8)&0xFF; buf[17]=dpi&0xFF;
+    return new Blob([buf], {type:"image/jpeg"});
+  }
+  // sem JFIF → inserir APP0 depois do SOI
+  const app0 = new Uint8Array([0xFF,0xE0,0x00,0x10,0x4A,0x46,0x49,0x46,0x00,0x01,0x01,0x01,
+    (dpi>>8)&0xFF, dpi&0xFF, (dpi>>8)&0xFF, dpi&0xFF, 0x00,0x00]);
+  const out = new Uint8Array(buf.length + app0.length);
+  out.set(buf.subarray(0,2),0);
+  out.set(app0,2);
+  out.set(buf.subarray(2), 2+app0.length);
+  return new Blob([out], {type:"image/jpeg"});
+}
+
+/* ---------------- DPI: PNG (chunk pHYs) ---------------- */
+const crcTable = (() => {
+  const t = new Uint32Array(256);
+  for (let n=0;n<256;n++){
+    let c=n;
+    for (let k=0;k<8;k++) c = (c&1) ? 0xEDB88320 ^ (c>>>1) : c>>>1;
+    t[n]=c;
+  }
+  return t;
+})();
+function crc32(bytes){
+  let c = 0xFFFFFFFF;
+  for (let i=0;i<bytes.length;i++) c = crcTable[(c ^ bytes[i]) & 0xFF] ^ (c>>>8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+async function setPngDpi(blob, dpi){
+  const buf = new Uint8Array(await blob.arrayBuffer());
+  // assinatura PNG
+  const sig=[0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A];
+  for (let i=0;i<8;i++) if (buf[i]!==sig[i]) return blob;
+  const ppm = Math.round(dpi / 0.0254);           // píxeis por metro
+  const chunk = new Uint8Array(4+4+9+4);
+  const dv = new DataView(chunk.buffer);
+  dv.setUint32(0, 9);                              // comprimento
+  chunk.set([0x70,0x48,0x59,0x73], 4);             // "pHYs"
+  dv.setUint32(8, ppm); dv.setUint32(12, ppm);
+  chunk[16]=1;                                     // unidade: metro
+  dv.setUint32(17, crc32(chunk.subarray(4,17)));   // CRC de tipo+dados
+  const insertAt = 8 + 4 + 4 + 13 + 4;             // logo após IHDR
+  const out = new Uint8Array(buf.length + chunk.length);
+  out.set(buf.subarray(0,insertAt),0);
+  out.set(chunk, insertAt);
+  out.set(buf.subarray(insertAt), insertAt+chunk.length);
+  return new Blob([out], {type:"image/png"});
+}
+
+/* ---------------- redimensionar + converter ---------------- */
+async function processFile(file){
+  let bmp;
+  try {
+    bmp = await createImageBitmap(file, {imageOrientation:"from-image"});
+  } catch(e){
+    bmp = await createImageBitmap(file); // fallback
+  }
+  let {width:w, height:h} = bmp;
+  let tw=w, th=h;
+  if (h > TARGET_H || (upscale.checked && h < TARGET_H)){
+    const s = TARGET_H / h;
+    th = TARGET_H;
+    tw = Math.max(1, Math.round(w * s));
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = tw; canvas.height = th;
+  const ctx = canvas.getContext("2d");
+  if (outFmt === "jpg"){ ctx.fillStyle="#FFFFFF"; ctx.fillRect(0,0,tw,th); } // fundo p/ transparências
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+
+  // reduções grandes: reduzir por metades para melhor nitidez
+  let src = bmp;
+  while (src.height > th * 2){
+    const hw = Math.round(src.width/2), hh = Math.round(src.height/2);
+    const c = document.createElement("canvas");
+    c.width=hw; c.height=hh;
+    const cx = c.getContext("2d");
+    cx.imageSmoothingEnabled=true; cx.imageSmoothingQuality="high";
+    cx.drawImage(src,0,0,hw,hh);
+    if (src !== bmp && src.close) src.close?.();
+    src = c;
+  }
+  ctx.drawImage(src, 0, 0, tw, th);
+  bmp.close?.();
+
+  const mime = outFmt === "jpg" ? "image/jpeg" : "image/png";
+  const q = outFmt === "jpg" ? (parseInt(quality.value,10)/100) : undefined;
+  let blob = await new Promise(res => canvas.toBlob(res, mime, q));
+  if (!blob) throw new Error("Falha na conversão");
+  blob = outFmt === "jpg" ? await setJpegDpi(blob, DPI) : await setPngDpi(blob, DPI);
+  return {blob, tw, th};
+}
+
+/* ---------------- UI: lista ---------------- */
+function render(){
+  listEl.innerHTML = "";
+  for (const it of items){
+    const div = document.createElement("div");
+    div.className = "item" + (it.status==="erro" ? " err" : "");
+    const savePct = (it.origSize && it.newSize!=null)
+      ? Math.round((1 - it.newSize/it.origSize) * 100) : null;
+    div.innerHTML = `
+      ${it.thumbUrl ? `<img class="thumb" src="${it.thumbUrl}" alt="">` : `<div class="thumb"></div>`}
+      <div>
+        <div class="name">${it.outName ?? it.name}</div>
+        <div class="meta">${fmtBytes(it.origSize)} → <strong>${fmtBytes(it.newSize)}</strong>${it.dimTxt ? ` · <span class="dim">${it.dimTxt}</span>` : ""}</div>
+      </div>
+      <div class="right">
+        ${it.status==="pronto"
+          ? `<span class="save${savePct<0?" grew":""}">${savePct>=0?"−":"+"}${Math.abs(savePct)}%</span><a class="dl" href="${it.url}" download="${it.outName}">↓ baixar</a>`
+          : `<span class="status">${it.status}…</span>`}
+      </div>`;
+    listEl.appendChild(div);
+  }
+  const done = items.filter(i=>i.status==="pronto");
+  const o = done.reduce((a,i)=>a+i.origSize,0);
+  const n = done.reduce((a,i)=>a+i.newSize,0);
+  tCount.textContent = String(done.length);
+  tOrig.textContent = done.length ? fmtBytes(o) : "—";
+  tNew.textContent  = done.length ? fmtBytes(n) : "—";
+  tSave.textContent = done.length && o ? "−" + Math.round((1-n/o)*100) + "%" : "—";
+  zipBtn.disabled = done.length === 0;
+}
+
+/* ---------------- fila ---------------- */
+let busy = false;
+async function addFiles(fileList){
+  const accepted = [...fileList].filter(f => /image\/(jpeg|png|webp)/.test(f.type));
+  for (const f of accepted){
+    items.push({id:++seq, file:f, name:f.name, origSize:f.size, newSize:null,
+                blob:null, url:null, thumbUrl:URL.createObjectURL(f),
+                dimTxt:null, status:"na fila", outName:null});
+  }
+  render();
+  if (!busy) runQueue();
+}
+async function runQueue(){
+  busy = true;
+  for (const it of items){
+    if (it.status !== "na fila") continue;
+    it.status = "a processar"; render();
+    try {
+      const {blob, tw, th} = await processFile(it.file);
+      it.blob = blob;
+      it.newSize = blob.size;
+      it.url = URL.createObjectURL(blob);
+      it.dimTxt = `${tw}×${th}px · ${DPI}dpi`;
+      it.outName = `${baseName(it.name)}_${th}px.${outFmt}`;
+      it.status = "pronto";
+    } catch(e){
+      console.error(e);
+      it.status = "erro";
+    }
+    render();
+  }
+  busy = false;
+}
+
+/* ---------------- ZIP ---------------- */
+zipBtn.addEventListener("click", async () => {
+  const done = items.filter(i=>i.status==="pronto");
+  if (!done.length) return;
+  zipBtn.disabled = true;
+  const old = zipBtn.textContent;
+  zipBtn.textContent = "A compactar…";
+  try {
+    const zip = new JSZip();
+    const used = new Set();
+    for (const it of done){
+      let n = it.outName, k = 1;
+      while (used.has(n)) n = `${baseName(it.outName)}_${k++}.${outFmt}`;
+      used.add(n);
+      zip.file(n, it.blob);
+    }
+    const blob = await zip.generateAsync({type:"blob"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `portalprep_${outFmt}_${new Date().toISOString().slice(0,10)}.zip`;
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  } finally {
+    zipBtn.textContent = old;
+    zipBtn.disabled = false;
+  }
+});
+
+/* ---------------- limpar ---------------- */
+clearBtn.addEventListener("click", () => {
+  for (const it of items){
+    if (it.url) URL.revokeObjectURL(it.url);
+    if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl);
+  }
+  items = [];
+  render();
+});
+
+/* ---------------- formato / qualidade ---------------- */
+function setFmt(f){
+  outFmt = f;
+  fmtJpg.classList.toggle("on", f==="jpg");
+  fmtPng.classList.toggle("on", f==="png");
+  qwrap.classList.toggle("off", f!=="jpg");
+  // reprocessar o que já existe com o novo formato
+  for (const it of items) if (it.status==="pronto" || it.status==="erro") it.status = "na fila";
+  if (items.length && !busy) runQueue();
+}
+fmtJpg.addEventListener("click", ()=>setFmt("jpg"));
+fmtPng.addEventListener("click", ()=>setFmt("png"));
+quality.addEventListener("input", ()=>{ qval.textContent = quality.value + "%"; });
+quality.addEventListener("change", ()=>{
+  if (outFmt!=="jpg") return;
+  for (const it of items) if (it.status==="pronto") it.status = "na fila";
+  if (items.length && !busy) runQueue();
+});
+upscale.addEventListener("change", ()=>{
+  for (const it of items) if (it.status==="pronto" || it.status==="erro") it.status = "na fila";
+  if (items.length && !busy) runQueue();
+});
+
+/* ---------------- drag & drop ---------------- */
+drop.addEventListener("click", ()=>fileInput.click());
+drop.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();fileInput.click();} });
+fileInput.addEventListener("change", ()=>{ addFiles(fileInput.files); fileInput.value=""; });
+["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e=>{e.preventDefault();drop.classList.add("over");}));
+["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e=>{e.preventDefault();drop.classList.remove("over");}));
+drop.addEventListener("drop", e => addFiles(e.dataTransfer.files));
+// evitar que largar fora da zona abra a imagem no browser
+window.addEventListener("dragover", e=>e.preventDefault());
+window.addEventListener("drop", e=>e.preventDefault());
+
+render();
+})();
+</script>
+</body>
+</html>

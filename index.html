@@ -3,186 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PortalPrep · Casa da Portela — Imagens prontas para portais imobiliários</title>
-<meta name="description" content="Redimensiona e converte fotografias em lote para JPG ou PNG, com 1080 px de altura e 72 dpi. Tudo no navegador — as imagens nunca saem do teu computador.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23005395'/><text x='50' y='68' font-size='52' text-anchor='middle' font-family='monospace' fill='white'>1080</text></svg>">
+<title>PortalPrep · Casa da Portela</title>
+<meta name="description" content="Arrasta as fotografias e recebe-as leves e prontas para os portais. Tudo no navegador.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23005395'/><path d='M30 55 L50 72 L70 55 M50 70 L50 28' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root{
-    --paper:#F4F5F2;
+    --bg:#F3F4F2;
     --card:#FFFFFF;
-    --ink:#17191C;
-    --muted:#6B7076;
-    --line:#DDE0DA;
-    --accent:#005395;
-    --accent-ink:#013E70;
+    --ink:#1A2026;
+    --muted:#69707A;
+    --faint:#9AA1AB;
+    --line:#E4E7E2;
+    --blue:#005395;
+    --blue-dark:#013E70;
+    --blue-tint:#EAF2F9;
     --ok:#1E7F4F;
-    --radius:14px;
     --mono:'IBM Plex Mono',ui-monospace,monospace;
     --sans:'Space Grotesk',system-ui,sans-serif;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 12px 32px -18px rgba(16,24,40,.18);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
   body{
-    background:var(--paper);
+    background:var(--bg);
     color:var(--ink);
     font-family:var(--sans);
     font-size:16px;
     line-height:1.5;
     min-height:100vh;
-    padding-bottom:110px;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:120px;
   }
-  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
 
-
-  .cp-head{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:18px}
-  .cp-logo{height:56px;width:auto;display:block}
-  .cp-sep{width:1px;height:44px;background:var(--line)}
-  @media (max-width:560px){.cp-logo{height:44px}.cp-sep{display:none}}
   /* ---------- header ---------- */
-  header{padding:44px 0 8px}
-  .brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-  .brand h1{font-size:clamp(28px,5vw,40px);font-weight:700;letter-spacing:-.02em}
-  .brand h1 em{font-style:normal;color:var(--accent)}
-  .brand .sub{font-family:var(--mono);font-size:13px;color:var(--muted)}
-  header p.lead{margin-top:10px;max-width:56ch;color:var(--muted)}
-  header p.lead strong{color:var(--ink);font-weight:500}
-
-  /* ---------- spec ticket (assinatura) ---------- */
-  .ticket{
-    margin:26px 0 30px;
-    background:var(--ink);
-    color:var(--paper);
-    border-radius:10px 10px 0 0;
-    padding:14px 18px 16px;
-    position:relative;
-    display:flex;gap:0;flex-wrap:wrap;
-    font-family:var(--mono);
+  header{padding:40px 0 28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .cp-logo{height:48px;width:auto;display:block;flex:0 0 auto}
+  .head-sep{width:1px;height:40px;background:var(--line)}
+  .head-txt h1{font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+  .head-txt h1 em{font-style:normal;color:var(--blue)}
+  .head-txt p{font-size:14px;color:var(--muted);margin-top:1px}
+  @media (max-width:520px){
+    .cp-logo{height:40px}
+    .head-sep{display:none}
   }
-  .ticket::after{ /* rebordo picotado */
-    content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;
-    background:radial-gradient(circle at 6px -2px, transparent 6px, var(--ink) 6.5px);
-    background-size:16px 8px;background-repeat:repeat-x;
-  }
-  .ticket .spec{flex:1 1 150px;padding:2px 18px;border-left:1px dashed rgba(244,245,242,.25)}
-  .ticket .spec:first-child{border-left:none;padding-left:0}
-  .ticket .k{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,245,242,.55)}
-  .ticket .v{font-size:18px;font-weight:600}
-  .ticket .v small{font-size:12px;font-weight:400;color:rgba(244,245,242,.6)}
-  .ticket .v.acc{color:var(--accent)}
 
   /* ---------- dropzone ---------- */
   .drop{
-    position:relative;
     background:var(--card);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:56px 24px;
+    border:1.5px dashed #C9CFCA;
+    border-radius:20px;
+    padding:72px 24px;
     text-align:center;
     cursor:pointer;
-    transition:border-color .15s, background .15s, transform .1s;
+    transition:border-color .15s, background .15s, box-shadow .15s;
+    box-shadow:var(--shadow);
   }
-  .drop:hover{border-color:var(--accent)}
-  .drop.over{border-color:var(--accent);background:#E9F1F8;transform:scale(1.004)}
-  /* marcas de recorte nos cantos */
-  .drop .corner{position:absolute;width:18px;height:18px;border-color:var(--accent);border-style:solid;border-width:0}
-  .drop .c1{top:10px;left:10px;border-top-width:2px;border-left-width:2px}
-  .drop .c2{top:10px;right:10px;border-top-width:2px;border-right-width:2px}
-  .drop .c3{bottom:10px;left:10px;border-bottom-width:2px;border-left-width:2px}
-  .drop .c4{bottom:10px;right:10px;border-bottom-width:2px;border-right-width:2px}
+  .drop:hover{border-color:var(--blue)}
+  .drop.over{border-color:var(--blue);background:var(--blue-tint)}
+  .drop:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
   .drop .arrow{
-    width:52px;height:52px;border-radius:50%;
-    background:var(--accent);color:#fff;
+    width:60px;height:60px;border-radius:50%;
+    background:var(--blue);color:#fff;
     display:flex;align-items:center;justify-content:center;
-    margin:0 auto 16px;font-size:24px;
+    margin:0 auto 18px;
+    transition:transform .15s;
   }
-  .drop h2{font-size:20px;font-weight:600}
-  .drop p{color:var(--muted);font-size:14px;margin-top:4px}
+  .drop:hover .arrow{transform:translateY(3px)}
+  .drop .arrow svg{width:26px;height:26px}
+  .drop h2{font-size:21px;font-weight:600;letter-spacing:-.01em}
+  .drop p{color:var(--muted);font-size:15px;margin-top:6px}
   .drop input{display:none}
 
-  /* ---------- controlos ---------- */
-  .controls{
-    display:flex;flex-wrap:wrap;gap:14px;align-items:center;
-    margin:18px 0 26px;
-    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-    padding:14px 18px;
-  }
-  .ctl-label{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  /* ---------- formato (único controlo) ---------- */
+  .fmt-row{display:flex;align-items:center;justify-content:center;gap:12px;margin:22px 0 30px}
+  .fmt-row .lbl{font-size:14px;color:var(--muted)}
+  .seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;box-shadow:var(--shadow)}
   .seg button{
-    font-family:var(--sans);font-size:14px;font-weight:500;
-    padding:8px 20px;border:none;background:transparent;color:var(--muted);cursor:pointer;
+    font-family:var(--sans);font-size:14px;font-weight:600;
+    padding:8px 26px;border:none;border-radius:999px;
+    background:transparent;color:var(--muted);cursor:pointer;
+    transition:background .12s,color .12s;
   }
-  .seg button.on{background:var(--ink);color:#fff}
-  .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-  .qwrap{display:flex;align-items:center;gap:10px;flex:1 1 220px;min-width:200px}
-  .qwrap input[type=range]{flex:1;accent-color:var(--accent)}
-  .qval{font-family:var(--mono);font-size:14px;font-weight:600;min-width:44px;text-align:right}
-  .qwrap.off{opacity:.35;pointer-events:none}
-  .chk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);cursor:pointer;user-select:none}
-  .chk input{accent-color:var(--accent);width:16px;height:16px;cursor:pointer}
+  .seg button.on{background:var(--blue);color:#fff}
+  .seg button:focus-visible{outline:2px solid var(--blue-dark);outline-offset:2px}
 
   /* ---------- lista ---------- */
   .list{display:flex;flex-direction:column;gap:10px}
   .item{
-    display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;
-    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;
+    display:grid;grid-template-columns:68px 1fr auto;gap:16px;align-items:center;
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:12px 16px;box-shadow:var(--shadow);
   }
-  .item img.thumb{width:64px;height:48px;object-fit:cover;border-radius:6px;background:#EDEEEA}
-  .item .name{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .item .meta{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px}
-  .item .meta .dim{color:var(--ink)}
-  .item .save{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ok);text-align:right;white-space:nowrap}
-  .item .save.grew{color:#B3541B}
-  .item .status{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .item img.thumb,.item .thumb{
+    width:68px;height:52px;object-fit:cover;border-radius:9px;background:#EDEFEA;
+  }
+  .item .name{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.005em}
+  .item .meta{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:3px}
+  .item .meta b{color:var(--ink);font-weight:500}
+  .item .right{display:flex;align-items:center;gap:14px}
+  .item .save{
+    font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ok);
+    background:#E8F4EE;border-radius:999px;padding:4px 12px;white-space:nowrap;
+  }
+  .item .save.grew{color:#8A5A18;background:#F7EEDD}
+  .item .status{font-family:var(--mono);font-size:12.5px;color:var(--faint)}
   .item a.dl{
-    font-family:var(--mono);font-size:12px;color:var(--accent-ink);text-decoration:none;
-    border:1px solid var(--line);border-radius:7px;padding:4px 10px;white-space:nowrap;
+    display:flex;align-items:center;justify-content:center;
+    width:38px;height:38px;border-radius:10px;
+    color:var(--blue);border:1px solid var(--line);text-decoration:none;
+    transition:background .12s,border-color .12s;
   }
-  .item a.dl:hover{border-color:var(--accent);background:#E9F1F8}
-  .item .right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .item a.dl:hover{background:var(--blue-tint);border-color:var(--blue)}
+  .item a.dl svg{width:17px;height:17px}
   .item.err{border-color:#E4B4A6}
   .item.err .status{color:#B33A1B}
+  @media (max-width:520px){
+    .item{grid-template-columns:56px 1fr auto;gap:12px;padding:10px 12px}
+    .item img.thumb,.item .thumb{width:56px;height:44px}
+    .item .save{display:none}
+  }
 
   /* ---------- barra fixa ---------- */
   .bar{
     position:fixed;left:0;right:0;bottom:0;z-index:10;
-    background:var(--card);border-top:1px solid var(--line);
-    padding:12px 20px;
-    box-shadow:0 -6px 24px rgba(23,25,28,.06);
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);
+    padding:14px 20px calc(14px + env(safe-area-inset-bottom));
   }
-  .bar-in{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-  .totals{display:flex;gap:22px;flex:1;font-family:var(--mono)}
-  .totals .t .k{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .totals .t .v{font-size:15px;font-weight:600}
-  .totals .t .v.acc{color:var(--ok)}
+  .bar-in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:14px}
+  .summary{flex:1;min-width:0}
+  .summary .n{font-size:15px;font-weight:600}
+  .summary .d{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .summary .d b{color:var(--ok);font-weight:500}
   .btn{
     font-family:var(--sans);font-size:15px;font-weight:600;
-    border:none;border-radius:10px;padding:12px 22px;cursor:pointer;
-    transition:transform .08s, box-shadow .12s;
+    border:none;border-radius:12px;padding:13px 24px;cursor:pointer;
+    transition:transform .08s, box-shadow .12s, background .12s;
+    white-space:nowrap;
   }
   .btn:active{transform:scale(.98)}
   .btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-  .btn-zip{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(0,83,149,.30)}
-  .btn-zip:hover{box-shadow:0 6px 18px rgba(0,83,149,.40)}
-  .btn-zip:disabled{background:#CFC9C4;box-shadow:none;cursor:not-allowed}
-  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
-  .btn-ghost:hover{color:var(--ink);border-color:var(--muted)}
+  .btn-zip{background:var(--blue);color:#fff;box-shadow:0 5px 16px rgba(0,83,149,.30)}
+  .btn-zip:hover{background:var(--blue-dark)}
+  .btn-zip:disabled{background:#C6CBD1;box-shadow:none;cursor:not-allowed}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line);padding:12px 18px}
+  .btn-ghost:hover{color:var(--ink);border-color:var(--faint)}
 
-  footer{margin-top:56px;padding:20px 0;color:var(--muted);font-size:13px}
-  footer .priv{font-family:var(--mono);font-size:12px}
+  footer{margin-top:52px;padding:16px 0;color:var(--faint);font-size:12.5px;text-align:center}
 
-  @media (max-width:560px){
-    .item{grid-template-columns:52px 1fr}
-    .item .right{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center}
-    .totals{gap:14px}
-  }
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important;animation:none!important}
-    html{scroll-behavior:auto}
   }
 </style>
 </head>
@@ -190,8 +165,7 @@
 
 <div class="wrap">
   <header>
-    <div class="cp-head">
-      <svg class="cp-logo" role="img" aria-label="Casa da Portela" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 231.62 85.89">
+    <svg class="cp-logo" role="img" aria-label="Casa da Portela" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 231.62 85.89">
   <defs>
     <style>
       .cplogo-1 {
@@ -238,65 +212,43 @@
     <path class="cplogo-3" d="M57.61,57.91s-.03.01-.03.03v1.43c0,8.43-7.01,15.26-15.51,14.95-8.11-.29-14.42-7.23-14.42-15.35v-1.01s-.01-.03-.03-.03l-1.41-.04c-8.09-.16-14.66-6.87-14.66-14.96h0c0-8.09,6.58-14.8,14.66-14.96l1.41-.04s.03-.01.03-.03v-1.01c0-8.12,6.3-15.06,14.42-15.35,8.5-.31,15.51,6.52,15.51,14.96v1.43s.01.03.03.03h1.04c5.01,0,9.58,2.4,12.4,6.17h3.54c-2.85-5.03-8.05-8.56-14.12-9.04-.01,0-.03-.01-.03-.03-.73-9.2-8.45-16.46-17.84-16.46s-17.12,7.28-17.84,16.5c0,.01-.01.03-.03.03-9.01.9-16.13,8.6-16.13,17.8h0c0,9.2,7.12,16.91,16.13,17.8.01,0,.03.01.03.03.72,9.22,8.45,16.5,17.84,16.5s17.1-7.26,17.84-16.46c0-.01.01-.03.03-.03,6.06-.48,11.27-4.01,14.12-9.04h-3.54c-2.82,3.76-7.39,6.17-12.4,6.17h-1.04Z"/>
   </g>
 </svg>
-      <span class="cp-sep" aria-hidden="true"></span>
-      <div>
-        <div class="brand">
+    <span class="head-sep" aria-hidden="true"></span>
+    <div class="head-txt">
       <h1>Portal<em>Prep</em></h1>
-          <span class="sub">// preparador de imagens para portais</span>
-        </div>
-      </div>
+      <p>Arrasta as fotografias e recebe-as leves, prontas para os portais.</p>
     </div>
-    <p class="lead">Arrasta as fotografias, escolhe JPG ou PNG e recebe tudo redimensionado e leve, pronto a carregar nos portais. <strong>As imagens nunca saem do teu navegador.</strong></p>
   </header>
 
-  <!-- talão de especificações -->
-  <div class="ticket" role="note" aria-label="Especificações fixas de saída">
-    <div class="spec"><div class="k">Altura</div><div class="v acc">1080 <small>px</small></div></div>
-    <div class="spec"><div class="k">Largura</div><div class="v">proporcional</div></div>
-    <div class="spec"><div class="k">Resolução</div><div class="v">72 <small>dpi</small></div></div>
-    <div class="spec"><div class="k">Processamento</div><div class="v">local <small>· sem uploads</small></div></div>
-  </div>
-
   <div class="drop" id="drop" tabindex="0" role="button" aria-label="Adicionar imagens">
-    <span class="corner c1"></span><span class="corner c2"></span>
-    <span class="corner c3"></span><span class="corner c4"></span>
-    <div class="arrow">↓</div>
+    <div class="arrow" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v13M6 12l6 6 6-6"/></svg>
+    </div>
     <h2>Arrasta as imagens para aqui</h2>
-    <p>ou clica para selecionar · JPG, PNG, WebP · em lote</p>
+    <p>ou clica para selecionar</p>
     <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple>
   </div>
 
-  <div class="controls">
-    <span class="ctl-label">Formato</span>
+  <div class="fmt-row">
+    <span class="lbl">Exportar como</span>
     <div class="seg" role="group" aria-label="Formato de saída">
       <button id="fmtJpg" class="on" type="button">JPG</button>
       <button id="fmtPng" type="button">PNG</button>
     </div>
-    <div class="qwrap" id="qwrap">
-      <span class="ctl-label">Qualidade</span>
-      <input type="range" id="quality" min="40" max="100" value="80" aria-label="Qualidade JPG">
-      <span class="qval" id="qval">80%</span>
-    </div>
-    <label class="chk"><input type="checkbox" id="upscale"> Ampliar imagens mais pequenas que 1080&nbsp;px</label>
   </div>
 
   <div class="list" id="list" aria-live="polite"></div>
 
-  <footer>
-    <span class="priv">© Casa da Portela · PortalPrep — ferramenta interna · processamento 100% local, nada é enviado para nenhum servidor.</span>
-  </footer>
+  <footer>Casa da Portela · as imagens são processadas no teu computador e nunca saem daqui.</footer>
 </div>
 
 <div class="bar">
   <div class="bar-in">
-    <div class="totals">
-      <div class="t"><div class="k">Ficheiros</div><div class="v" id="tCount">0</div></div>
-      <div class="t"><div class="k">Original</div><div class="v" id="tOrig">—</div></div>
-      <div class="t"><div class="k">Novo</div><div class="v" id="tNew">—</div></div>
-      <div class="t"><div class="k">Economia</div><div class="v acc" id="tSave">—</div></div>
+    <div class="summary">
+      <div class="n" id="sTitle">Sem imagens</div>
+      <div class="d" id="sDetail">Adiciona fotografias para começar</div>
     </div>
     <button class="btn btn-ghost" id="clearBtn" type="button">Limpar</button>
-    <button class="btn btn-zip" id="zipBtn" type="button" disabled>↓ Baixar ZIP</button>
+    <button class="btn btn-zip" id="zipBtn" type="button" disabled>Descarregar tudo</button>
   </div>
 </div>
 
@@ -304,21 +256,21 @@
 (() => {
 "use strict";
 
-/* ---------------- estado ---------------- */
-const TARGET_H = 1080;
-const DPI = 72;
-let outFmt = "jpg";              // 'jpg' | 'png'
-let items = [];                  // {id,file,name,origSize,newSize,blob,url,thumbUrl,dimTxt,status}
+/* ---------------- definições fixas (invisíveis ao utilizador) ---------------- */
+const TARGET_H = 1080;   // altura de saída
+const DPI = 72;          // resolução nos metadados
+const JPG_Q = 0.8;       // qualidade JPG
+
+let outFmt = "jpg";
+let items = [];
 let seq = 0;
 
-/* ---------------- elementos ---------------- */
 const $ = id => document.getElementById(id);
 const drop=$("drop"), fileInput=$("fileInput"), listEl=$("list");
-const fmtJpg=$("fmtJpg"), fmtPng=$("fmtPng"), qwrap=$("qwrap"), quality=$("quality"), qval=$("qval");
-const upscale=$("upscale"), zipBtn=$("zipBtn"), clearBtn=$("clearBtn");
-const tCount=$("tCount"), tOrig=$("tOrig"), tNew=$("tNew"), tSave=$("tSave");
+const fmtJpg=$("fmtJpg"), fmtPng=$("fmtPng");
+const zipBtn=$("zipBtn"), clearBtn=$("clearBtn");
+const sTitle=$("sTitle"), sDetail=$("sDetail");
 
-/* ---------------- utilitários ---------------- */
 const fmtBytes = b => {
   if (b == null) return "—";
   if (b < 1024) return b + " B";
@@ -326,21 +278,19 @@ const fmtBytes = b => {
   return (b/1048576).toFixed(2) + " MB";
 };
 const baseName = n => n.replace(/\.[^.]+$/, "");
+const dlIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>`;
 
 /* ---------------- DPI: JPG (segmento JFIF APP0) ---------------- */
 async function setJpegDpi(blob, dpi){
   const buf = new Uint8Array(await blob.arrayBuffer());
-  // SOI
   if (buf[0]!==0xFF || buf[1]!==0xD8) return blob;
-  // APP0 JFIF existente?
   if (buf[2]===0xFF && buf[3]===0xE0 &&
       buf[6]===0x4A && buf[7]===0x46 && buf[8]===0x49 && buf[9]===0x46 && buf[10]===0x00){
-    buf[13]=1;                       // unidades: dpi
+    buf[13]=1;
     buf[14]=(dpi>>8)&0xFF; buf[15]=dpi&0xFF;
     buf[16]=(dpi>>8)&0xFF; buf[17]=dpi&0xFF;
     return new Blob([buf], {type:"image/jpeg"});
   }
-  // sem JFIF → inserir APP0 depois do SOI
   const app0 = new Uint8Array([0xFF,0xE0,0x00,0x10,0x4A,0x46,0x49,0x46,0x00,0x01,0x01,0x01,
     (dpi>>8)&0xFF, dpi&0xFF, (dpi>>8)&0xFF, dpi&0xFF, 0x00,0x00]);
   const out = new Uint8Array(buf.length + app0.length);
@@ -367,18 +317,17 @@ function crc32(bytes){
 }
 async function setPngDpi(blob, dpi){
   const buf = new Uint8Array(await blob.arrayBuffer());
-  // assinatura PNG
   const sig=[0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A];
   for (let i=0;i<8;i++) if (buf[i]!==sig[i]) return blob;
-  const ppm = Math.round(dpi / 0.0254);           // píxeis por metro
-  const chunk = new Uint8Array(4+4+9+4);
+  const ppm = Math.round(dpi / 0.0254);
+  const chunk = new Uint8Array(21);
   const dv = new DataView(chunk.buffer);
-  dv.setUint32(0, 9);                              // comprimento
-  chunk.set([0x70,0x48,0x59,0x73], 4);             // "pHYs"
+  dv.setUint32(0, 9);
+  chunk.set([0x70,0x48,0x59,0x73], 4);
   dv.setUint32(8, ppm); dv.setUint32(12, ppm);
-  chunk[16]=1;                                     // unidade: metro
-  dv.setUint32(17, crc32(chunk.subarray(4,17)));   // CRC de tipo+dados
-  const insertAt = 8 + 4 + 4 + 13 + 4;             // logo após IHDR
+  chunk[16]=1;
+  dv.setUint32(17, crc32(chunk.subarray(4,17)));
+  const insertAt = 8 + 4 + 4 + 13 + 4;
   const out = new Uint8Array(buf.length + chunk.length);
   out.set(buf.subarray(0,insertAt),0);
   out.set(chunk, insertAt);
@@ -392,11 +341,11 @@ async function processFile(file){
   try {
     bmp = await createImageBitmap(file, {imageOrientation:"from-image"});
   } catch(e){
-    bmp = await createImageBitmap(file); // fallback
+    bmp = await createImageBitmap(file);
   }
   let {width:w, height:h} = bmp;
   let tw=w, th=h;
-  if (h > TARGET_H || (upscale.checked && h < TARGET_H)){
+  if (h > TARGET_H){
     const s = TARGET_H / h;
     th = TARGET_H;
     tw = Math.max(1, Math.round(w * s));
@@ -404,11 +353,10 @@ async function processFile(file){
   const canvas = document.createElement("canvas");
   canvas.width = tw; canvas.height = th;
   const ctx = canvas.getContext("2d");
-  if (outFmt === "jpg"){ ctx.fillStyle="#FFFFFF"; ctx.fillRect(0,0,tw,th); } // fundo p/ transparências
+  if (outFmt === "jpg"){ ctx.fillStyle="#FFFFFF"; ctx.fillRect(0,0,tw,th); }
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
 
-  // reduções grandes: reduzir por metades para melhor nitidez
   let src = bmp;
   while (src.height > th * 2){
     const hw = Math.round(src.width/2), hh = Math.round(src.height/2);
@@ -417,21 +365,19 @@ async function processFile(file){
     const cx = c.getContext("2d");
     cx.imageSmoothingEnabled=true; cx.imageSmoothingQuality="high";
     cx.drawImage(src,0,0,hw,hh);
-    if (src !== bmp && src.close) src.close?.();
     src = c;
   }
   ctx.drawImage(src, 0, 0, tw, th);
   bmp.close?.();
 
   const mime = outFmt === "jpg" ? "image/jpeg" : "image/png";
-  const q = outFmt === "jpg" ? (parseInt(quality.value,10)/100) : undefined;
-  let blob = await new Promise(res => canvas.toBlob(res, mime, q));
+  let blob = await new Promise(res => canvas.toBlob(res, mime, outFmt==="jpg" ? JPG_Q : undefined));
   if (!blob) throw new Error("Falha na conversão");
   blob = outFmt === "jpg" ? await setJpegDpi(blob, DPI) : await setPngDpi(blob, DPI);
   return {blob, tw, th};
 }
 
-/* ---------------- UI: lista ---------------- */
+/* ---------------- UI ---------------- */
 function render(){
   listEl.innerHTML = "";
   for (const it of items){
@@ -441,35 +387,48 @@ function render(){
       ? Math.round((1 - it.newSize/it.origSize) * 100) : null;
     div.innerHTML = `
       ${it.thumbUrl ? `<img class="thumb" src="${it.thumbUrl}" alt="">` : `<div class="thumb"></div>`}
-      <div>
+      <div style="min-width:0">
         <div class="name">${it.outName ?? it.name}</div>
-        <div class="meta">${fmtBytes(it.origSize)} → <strong>${fmtBytes(it.newSize)}</strong>${it.dimTxt ? ` · <span class="dim">${it.dimTxt}</span>` : ""}</div>
+        <div class="meta">${fmtBytes(it.origSize)} → <b>${fmtBytes(it.newSize)}</b></div>
       </div>
       <div class="right">
         ${it.status==="pronto"
-          ? `<span class="save${savePct<0?" grew":""}">${savePct>=0?"−":"+"}${Math.abs(savePct)}%</span><a class="dl" href="${it.url}" download="${it.outName}">↓ baixar</a>`
+          ? `<span class="save${savePct<0?" grew":""}">${savePct>=0?"−":"+"}${Math.abs(savePct)}%</span>
+             <a class="dl" href="${it.url}" download="${it.outName}" aria-label="Descarregar ${it.outName}">${dlIcon}</a>`
           : `<span class="status">${it.status}…</span>`}
       </div>`;
     listEl.appendChild(div);
   }
   const done = items.filter(i=>i.status==="pronto");
+  const pending = items.filter(i=>i.status==="na fila" || i.status==="a processar").length;
   const o = done.reduce((a,i)=>a+i.origSize,0);
   const n = done.reduce((a,i)=>a+i.newSize,0);
-  tCount.textContent = String(done.length);
-  tOrig.textContent = done.length ? fmtBytes(o) : "—";
-  tNew.textContent  = done.length ? fmtBytes(n) : "—";
-  tSave.textContent = done.length && o ? "−" + Math.round((1-n/o)*100) + "%" : "—";
+  if (!items.length){
+    sTitle.textContent = "Sem imagens";
+    sDetail.textContent = "Adiciona fotografias para começar";
+  } else if (pending){
+    sTitle.textContent = `A preparar ${pending} ${pending===1?"imagem":"imagens"}…`;
+    sDetail.textContent = done.length ? `${done.length} prontas` : " ";
+  } else {
+    sTitle.textContent = `${done.length} ${done.length===1?"imagem pronta":"imagens prontas"}`;
+    sDetail.textContent = o ? `${fmtBytes(o)} → ${fmtBytes(n)} · poupaste ` : "";
+    if (o){
+      const b = document.createElement("b");
+      b.textContent = Math.round((1-n/o)*100) + "%";
+      sDetail.appendChild(b);
+    }
+  }
   zipBtn.disabled = done.length === 0;
 }
 
 /* ---------------- fila ---------------- */
 let busy = false;
-async function addFiles(fileList){
+function addFiles(fileList){
   const accepted = [...fileList].filter(f => /image\/(jpeg|png|webp)/.test(f.type));
   for (const f of accepted){
     items.push({id:++seq, file:f, name:f.name, origSize:f.size, newSize:null,
                 blob:null, url:null, thumbUrl:URL.createObjectURL(f),
-                dimTxt:null, status:"na fila", outName:null});
+                status:"na fila", outName:null});
   }
   render();
   if (!busy) runQueue();
@@ -483,9 +442,9 @@ async function runQueue(){
       const {blob, tw, th} = await processFile(it.file);
       it.blob = blob;
       it.newSize = blob.size;
+      if (it.url) URL.revokeObjectURL(it.url);
       it.url = URL.createObjectURL(blob);
-      it.dimTxt = `${tw}×${th}px · ${DPI}dpi`;
-      it.outName = `${baseName(it.name)}_${th}px.${outFmt}`;
+      it.outName = `${baseName(it.name)}.${outFmt}`;
       it.status = "pronto";
     } catch(e){
       console.error(e);
@@ -494,15 +453,21 @@ async function runQueue(){
     render();
   }
   busy = false;
+  render();
 }
 
 /* ---------------- ZIP ---------------- */
 zipBtn.addEventListener("click", async () => {
   const done = items.filter(i=>i.status==="pronto");
   if (!done.length) return;
+  if (done.length === 1){
+    const a = document.createElement("a");
+    a.href = done[0].url; a.download = done[0].outName; a.click();
+    return;
+  }
   zipBtn.disabled = true;
   const old = zipBtn.textContent;
-  zipBtn.textContent = "A compactar…";
+  zipBtn.textContent = "A preparar…";
   try {
     const zip = new JSZip();
     const used = new Set();
@@ -515,7 +480,7 @@ zipBtn.addEventListener("click", async () => {
     const blob = await zip.generateAsync({type:"blob"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `portalprep_${outFmt}_${new Date().toISOString().slice(0,10)}.zip`;
+    a.download = `fotos_portais_${new Date().toISOString().slice(0,10)}.zip`;
     a.click();
     setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
   } finally {
@@ -534,28 +499,17 @@ clearBtn.addEventListener("click", () => {
   render();
 });
 
-/* ---------------- formato / qualidade ---------------- */
+/* ---------------- formato ---------------- */
 function setFmt(f){
+  if (f === outFmt) return;
   outFmt = f;
   fmtJpg.classList.toggle("on", f==="jpg");
   fmtPng.classList.toggle("on", f==="png");
-  qwrap.classList.toggle("off", f!=="jpg");
-  // reprocessar o que já existe com o novo formato
   for (const it of items) if (it.status==="pronto" || it.status==="erro") it.status = "na fila";
   if (items.length && !busy) runQueue();
 }
 fmtJpg.addEventListener("click", ()=>setFmt("jpg"));
 fmtPng.addEventListener("click", ()=>setFmt("png"));
-quality.addEventListener("input", ()=>{ qval.textContent = quality.value + "%"; });
-quality.addEventListener("change", ()=>{
-  if (outFmt!=="jpg") return;
-  for (const it of items) if (it.status==="pronto") it.status = "na fila";
-  if (items.length && !busy) runQueue();
-});
-upscale.addEventListener("change", ()=>{
-  for (const it of items) if (it.status==="pronto" || it.status==="erro") it.status = "na fila";
-  if (items.length && !busy) runQueue();
-});
 
 /* ---------------- drag & drop ---------------- */
 drop.addEventListener("click", ()=>fileInput.click());
@@ -564,7 +518,6 @@ fileInput.addEventListener("change", ()=>{ addFiles(fileInput.files); fileInput.
 ["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e=>{e.preventDefault();drop.classList.add("over");}));
 ["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e=>{e.preventDefault();drop.classList.remove("over");}));
 drop.addEventListener("drop", e => addFiles(e.dataTransfer.files));
-// evitar que largar fora da zona abra a imagem no browser
 window.addEventListener("dragover", e=>e.preventDefault());
 window.addEventListener("drop", e=>e.preventDefault());
 

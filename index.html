@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fotos · Casa da Portela</title>
-<meta name="description" content="Arrasta as fotografias e recebe-as leves e prontas para os portais. Tudo no navegador.">
+<meta name="description" content="Ferramenta para reduzir o tamanho das fotografias e inseri-las da melhor forma no CRM e nos portais imobiliários.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23005395'/><path d='M30 55 L50 72 L70 55 M50 70 L50 28' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,6 +22,8 @@
     --blue-dark:#013E70;
     --blue-tint:#EAF2F9;
     --ok:#1E7F4F;
+    --warn:#8A5A18;
+    --warn-bg:#F7EEDD;
     --mono:'IBM Plex Mono',ui-monospace,monospace;
     --sans:'Space Grotesk',system-ui,sans-serif;
     --shadow:0 1px 2px rgba(16,24,40,.04), 0 12px 32px -18px rgba(16,24,40,.18);
@@ -45,6 +47,17 @@
   .head-sep{width:1px;height:40px;background:var(--line)}
   .head-title{font-size:30px;font-weight:700;letter-spacing:-.015em;line-height:1}
   .head-title em{font-style:normal;color:var(--blue)}
+  .pro-btn{
+    margin-left:auto;
+    font-family:var(--sans);font-size:13.5px;font-weight:600;
+    padding:8px 18px;border-radius:999px;cursor:pointer;
+    border:1.5px solid var(--line);background:var(--card);color:var(--muted);
+    transition:all .15s;display:flex;align-items:center;gap:7px;
+  }
+  .pro-btn:hover{border-color:var(--blue);color:var(--blue)}
+  .pro-btn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .pro-btn:focus-visible{outline:2px solid var(--blue-dark);outline-offset:2px}
+  .pro-btn svg{width:14px;height:14px}
   .intro{
     font-size:18px;
     color:var(--ink);
@@ -55,6 +68,7 @@
   @media (max-width:520px){
     .cp-logo{height:40px}
     .head-sep{display:none}
+    .head-title{font-size:26px}
   }
 
   /* ---------- dropzone ---------- */
@@ -84,9 +98,16 @@
   .drop p{color:var(--muted);font-size:15px;margin-top:6px}
   .drop input{display:none}
 
-  /* ---------- formato (único controlo) ---------- */
-  .fmt-row{display:flex;align-items:center;justify-content:center;gap:12px;margin:22px 0 30px}
+  /* ---------- formato ---------- */
+  .fmt-row{display:flex;align-items:center;justify-content:center;gap:12px;margin:22px 0 0;flex-wrap:wrap}
   .fmt-row .lbl{font-size:14px;color:var(--muted)}
+  .fmt-note{
+    display:none;
+    text-align:center;font-size:13.5px;color:var(--warn);
+    background:var(--warn-bg);border-radius:10px;
+    padding:9px 16px;margin:12px auto 0;max-width:520px;
+  }
+  .fmt-note.on{display:block}
   .seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;box-shadow:var(--shadow)}
   .seg button{
     font-family:var(--sans);font-size:14px;font-weight:600;
@@ -96,9 +117,45 @@
   }
   .seg button.on{background:var(--blue);color:#fff}
   .seg button:focus-visible{outline:2px solid var(--blue-dark);outline-offset:2px}
+  .seg button.hidden{display:none}
+
+  /* ---------- painel Pro ---------- */
+  .pro-panel{
+    display:none;
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:18px 20px;
+    margin:18px 0 0;
+    grid-template-columns:1fr 1fr;
+    gap:20px 28px;align-items:start;
+  }
+  .pro-panel.on{display:grid}
+  .pro-panel .fld{display:flex;flex-direction:column;gap:8px;min-width:0}
+  .pro-panel .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .pro-panel .hint{font-size:12px;color:var(--faint);line-height:1.4}
+  .qwrap{display:flex;align-items:center;gap:12px}
+  .qwrap input[type=range]{flex:1;min-width:120px;accent-color:var(--blue)}
+  .qval{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--blue);min-width:44px;text-align:right}
+  .off{opacity:.35;pointer-events:none}
+  .inwrap{display:flex;align-items:center;gap:8px}
+  .inwrap input[type=number]{
+    font-family:var(--mono);font-size:14px;color:var(--ink);
+    width:90px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;
+    background:var(--bg);text-align:right;
+  }
+  .inwrap input[type=text]{
+    font-family:var(--mono);font-size:13.5px;color:var(--ink);
+    flex:1;min-width:0;padding:8px 12px;border:1px solid var(--line);border-radius:9px;
+    background:var(--bg);
+  }
+  .inwrap input:focus{outline:2px solid var(--blue);outline-offset:-1px;border-color:var(--blue)}
+  .inwrap .unit{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  @media (max-width:640px){
+    .pro-panel{grid-template-columns:1fr}
+  }
 
   /* ---------- lista ---------- */
-  .list{display:flex;flex-direction:column;gap:10px}
+  .list{display:flex;flex-direction:column;gap:10px;margin-top:30px}
   .item{
     display:grid;grid-template-columns:68px 1fr auto;gap:16px;align-items:center;
     background:var(--card);border:1px solid var(--line);border-radius:16px;
@@ -110,12 +167,13 @@
   .item .name{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.005em}
   .item .meta{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:3px}
   .item .meta b{color:var(--ink);font-weight:500}
+  .item .meta .over{color:var(--warn)}
   .item .right{display:flex;align-items:center;gap:14px}
   .item .save{
     font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ok);
     background:#E8F4EE;border-radius:999px;padding:4px 12px;white-space:nowrap;
   }
-  .item .save.grew{color:#8A5A18;background:#F7EEDD}
+  .item .save.grew{color:var(--warn);background:var(--warn-bg)}
   .item .status{font-family:var(--mono);font-size:12.5px;color:var(--faint)}
   .item a.dl{
     display:flex;align-items:center;justify-content:center;
@@ -133,13 +191,24 @@
     .item .save{display:none}
   }
 
-  /* ---------- barra fixa ---------- */
+  /* ---------- barra fixa + progresso ---------- */
   .bar{
     position:fixed;left:0;right:0;bottom:0;z-index:10;
     background:rgba(255,255,255,.92);
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
     border-top:1px solid var(--line);
     padding:14px 20px calc(14px + env(safe-area-inset-bottom));
+  }
+  .progress{
+    position:absolute;top:-1px;left:0;right:0;height:3px;
+    background:transparent;overflow:hidden;
+    opacity:0;transition:opacity .2s;
+  }
+  .progress.on{opacity:1}
+  .progress i{
+    display:block;height:100%;width:0%;
+    background:var(--blue);
+    transition:width .25s ease;
   }
   .bar-in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:14px}
   .summary{flex:1;min-width:0}
@@ -220,6 +289,10 @@
 </svg>
     <span class="head-sep" aria-hidden="true"></span>
     <h1 class="head-title"><em>Fotos</em></h1>
+    <button class="pro-btn" id="proBtn" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+      Modo Pro
+    </button>
   </header>
 
   <p class="intro">Ferramenta para reduzir o tamanho das fotografias e inseri-las da melhor forma no CRM e nos portais imobiliários.</p>
@@ -238,6 +311,42 @@
     <div class="seg" role="group" aria-label="Formato de saída">
       <button id="fmtJpg" class="on" type="button">JPG</button>
       <button id="fmtPng" type="button">PNG</button>
+      <button id="fmtWebp" class="hidden" type="button">WebP</button>
+    </div>
+  </div>
+
+  <p class="fmt-note" id="fmtNote">O PNG não comprime fotografias — o ficheiro pode ficar maior que o original. Para fotos de imóveis, usa JPG.</p>
+
+  <div class="pro-panel" id="proPanel">
+    <div class="fld">
+      <span class="k">Qualidade</span>
+      <div class="qwrap" id="qwrap">
+        <input type="range" id="quality" min="40" max="100" value="80" aria-label="Qualidade de compressão">
+        <span class="qval" id="qval">80%</span>
+      </div>
+      <span class="hint">100% = qualidade máxima. Ignorado se definires um peso máximo.</span>
+    </div>
+    <div class="fld">
+      <span class="k">Peso máximo por foto</span>
+      <div class="inwrap" id="wwrap">
+        <input type="number" id="tweight" min="30" max="10000" step="10" placeholder="—" aria-label="Peso máximo em KB">
+        <span class="unit">KB</span>
+      </div>
+      <span class="hint">A compressão ajusta-se sozinha até cada foto ficar abaixo deste peso.</span>
+    </div>
+    <div class="fld">
+      <span class="k">Altura máxima</span>
+      <div class="inwrap">
+        <input type="number" id="theight" min="200" max="6000" step="10" value="1080" aria-label="Altura máxima em píxeis">
+        <span class="unit">px</span>
+      </div>
+    </div>
+    <div class="fld">
+      <span class="k">Renomear ficheiros</span>
+      <div class="inwrap">
+        <input type="text" id="rename" placeholder="ex: palacete-douro" aria-label="Padrão de renomeação">
+      </div>
+      <span class="hint">Gera nomes sequenciais: palacete-douro-01, -02… Vazio mantém os nomes originais.</span>
     </div>
   </div>
 
@@ -247,6 +356,7 @@
 </div>
 
 <div class="bar">
+  <div class="progress" id="progWrap"><i id="progFill"></i></div>
   <div class="bar-in">
     <div class="summary">
       <div class="n" id="sTitle">Sem imagens</div>
@@ -261,20 +371,38 @@
 (() => {
 "use strict";
 
-/* ---------------- definições fixas (invisíveis ao utilizador) ---------------- */
-const TARGET_H = 1080;   // altura de saída
-const DPI = 72;          // resolução nos metadados
-const JPG_Q = 0.8;       // qualidade JPG
+/* ---------------- predefinições (modo normal) ---------------- */
+const DEFAULT_H = 1080;
+const DEFAULT_Q = 80;      // 100% = qualidade máxima
+const MIN_Q = 0.3;         // piso da iteração de peso
+const DPI = 72;
 
-let outFmt = "jpg";
+let pro = false;
+let outFmt = "jpg";        // 'jpg' | 'png' | 'webp'
 let items = [];
 let seq = 0;
 
 const $ = id => document.getElementById(id);
 const drop=$("drop"), fileInput=$("fileInput"), listEl=$("list");
-const fmtJpg=$("fmtJpg"), fmtPng=$("fmtPng");
+const fmtJpg=$("fmtJpg"), fmtPng=$("fmtPng"), fmtWebp=$("fmtWebp"), fmtNote=$("fmtNote");
+const proBtn=$("proBtn"), proPanel=$("proPanel");
+const quality=$("quality"), qval=$("qval"), qwrap=$("qwrap");
+const theight=$("theight"), tweight=$("tweight"), wwrap=$("wwrap"), renameIn=$("rename");
 const zipBtn=$("zipBtn"), clearBtn=$("clearBtn");
 const sTitle=$("sTitle"), sDetail=$("sDetail");
+const progWrap=$("progWrap"), progFill=$("progFill");
+
+const getQ = () => pro ? parseInt(quality.value,10)/100 : DEFAULT_Q/100;
+const getH = () => {
+  if (!pro) return DEFAULT_H;
+  const v = parseInt(theight.value,10);
+  return (Number.isFinite(v) && v>=200 && v<=6000) ? v : DEFAULT_H;
+};
+const getW = () => {  // peso máximo em bytes, ou null
+  if (!pro) return null;
+  const v = parseInt(tweight.value,10);
+  return (Number.isFinite(v) && v>=30) ? v*1024 : null;
+};
 
 const fmtBytes = b => {
   if (b == null) return "—";
@@ -284,6 +412,20 @@ const fmtBytes = b => {
 };
 const baseName = n => n.replace(/\.[^.]+$/, "");
 const dlIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>`;
+
+/* ---------------- nomes de saída ---------------- */
+function sanitize(s){ return s.replace(/[\\/:*?"<>|]/g, "").trim(); }
+function makeName(it, idx){
+  const pat = pro ? sanitize(renameIn.value) : "";
+  if (!pat) return `${baseName(it.name)}.${outFmt}`;
+  const pad = items.length > 99 ? 3 : 2;
+  const n = String(idx+1).padStart(pad, "0");
+  const stem = pat.includes("{n}") ? pat.replaceAll("{n}", n) : `${pat}-${n}`;
+  return `${stem}.${outFmt}`;
+}
+function refreshNames(){
+  items.forEach((it,i)=>{ it.outName = makeName(it, i); });
+}
 
 /* ---------------- DPI: JPG (segmento JFIF APP0) ---------------- */
 async function setJpegDpi(blob, dpi){
@@ -341,6 +483,9 @@ async function setPngDpi(blob, dpi){
 }
 
 /* ---------------- redimensionar + converter ---------------- */
+const encodeCanvas = (canvas, mime, q) =>
+  new Promise(res => canvas.toBlob(res, mime, q));
+
 async function processFile(file){
   let bmp;
   try {
@@ -348,11 +493,12 @@ async function processFile(file){
   } catch(e){
     bmp = await createImageBitmap(file);
   }
+  const H = getH();
   let {width:w, height:h} = bmp;
   let tw=w, th=h;
-  if (h > TARGET_H){
-    const s = TARGET_H / h;
-    th = TARGET_H;
+  if (h > H){
+    const s = H / h;
+    th = H;
     tw = Math.max(1, Math.round(w * s));
   }
   const canvas = document.createElement("canvas");
@@ -375,26 +521,54 @@ async function processFile(file){
   ctx.drawImage(src, 0, 0, tw, th);
   bmp.close?.();
 
-  const mime = outFmt === "jpg" ? "image/jpeg" : "image/png";
-  let blob = await new Promise(res => canvas.toBlob(res, mime, outFmt==="jpg" ? JPG_Q : undefined));
+  const mime = outFmt==="jpg" ? "image/jpeg" : outFmt==="png" ? "image/png" : "image/webp";
+  const limit = getW();
+  let blob, qUsed = null, overLimit = false;
+
+  if (outFmt === "png"){
+    blob = await encodeCanvas(canvas, mime, undefined);
+    if (limit && blob.size > limit) overLimit = true;
+  } else if (limit){
+    // iterar a qualidade até ficar abaixo do limite
+    let q = getQ();
+    blob = await encodeCanvas(canvas, mime, q);
+    while (blob && blob.size > limit && q > MIN_Q + 0.001){
+      q = Math.max(MIN_Q, q - 0.07);
+      blob = await encodeCanvas(canvas, mime, q);
+    }
+    qUsed = q;
+    if (blob && blob.size > limit) overLimit = true;
+  } else {
+    qUsed = getQ();
+    blob = await encodeCanvas(canvas, mime, qUsed);
+  }
   if (!blob) throw new Error("Falha na conversão");
-  blob = outFmt === "jpg" ? await setJpegDpi(blob, DPI) : await setPngDpi(blob, DPI);
-  return {blob, tw, th};
+  if (outFmt==="jpg") blob = await setJpegDpi(blob, DPI);
+  else if (outFmt==="png") blob = await setPngDpi(blob, DPI);
+  // WebP: sem injeção de DPI (o formato não usa o mesmo esquema de metadados)
+  return {blob, tw, th, qUsed, overLimit};
 }
 
 /* ---------------- UI ---------------- */
 function render(){
+  refreshNames();
   listEl.innerHTML = "";
   for (const it of items){
     const div = document.createElement("div");
     div.className = "item" + (it.status==="erro" ? " err" : "");
     const savePct = (it.origSize && it.newSize!=null)
       ? Math.round((1 - it.newSize/it.origSize) * 100) : null;
+    let extra = "";
+    if (pro && it.status==="pronto"){
+      if (it.dimTxt) extra += ` · ${it.dimTxt}`;
+      if (it.qUsed != null && outFmt!=="png") extra += ` · q${Math.round(it.qUsed*100)}`;
+      if (it.overLimit) extra += ` · <span class="over">acima do limite</span>`;
+    }
     div.innerHTML = `
       ${it.thumbUrl ? `<img class="thumb" src="${it.thumbUrl}" alt="">` : `<div class="thumb"></div>`}
       <div style="min-width:0">
         <div class="name">${it.outName ?? it.name}</div>
-        <div class="meta">${fmtBytes(it.origSize)} → <b>${fmtBytes(it.newSize)}</b></div>
+        <div class="meta">${fmtBytes(it.origSize)} → <b>${fmtBytes(it.newSize)}</b>${extra}</div>
       </div>
       <div class="right">
         ${it.status==="pronto"
@@ -424,6 +598,20 @@ function render(){
     }
   }
   zipBtn.disabled = done.length === 0;
+  updateProgress(pending);
+}
+
+/* ---------------- progresso global ---------------- */
+let runDone = 0;
+function updateProgress(pending){
+  if (pending > 0){
+    const total = runDone + pending;
+    progFill.style.width = total ? Math.round(runDone/total*100) + "%" : "0%";
+    progWrap.classList.add("on");
+  } else {
+    progFill.style.width = "100%";
+    setTimeout(()=>{ progWrap.classList.remove("on"); progFill.style.width="0%"; }, 400);
+  }
 }
 
 /* ---------------- fila ---------------- */
@@ -433,32 +621,40 @@ function addFiles(fileList){
   for (const f of accepted){
     items.push({id:++seq, file:f, name:f.name, origSize:f.size, newSize:null,
                 blob:null, url:null, thumbUrl:URL.createObjectURL(f),
-                status:"na fila", outName:null});
+                dimTxt:null, qUsed:null, overLimit:false, status:"na fila", outName:null});
   }
   render();
   if (!busy) runQueue();
 }
 async function runQueue(){
   busy = true;
+  runDone = 0;
   for (const it of items){
     if (it.status !== "na fila") continue;
     it.status = "a processar"; render();
     try {
-      const {blob, tw, th} = await processFile(it.file);
+      const {blob, tw, th, qUsed, overLimit} = await processFile(it.file);
       it.blob = blob;
       it.newSize = blob.size;
       if (it.url) URL.revokeObjectURL(it.url);
       it.url = URL.createObjectURL(blob);
-      it.outName = `${baseName(it.name)}.${outFmt}`;
+      it.dimTxt = `${tw}×${th}px`;
+      it.qUsed = qUsed;
+      it.overLimit = overLimit;
       it.status = "pronto";
     } catch(e){
       console.error(e);
       it.status = "erro";
     }
+    runDone++;
     render();
   }
   busy = false;
   render();
+}
+function reprocessAll(){
+  for (const it of items) if (it.status==="pronto" || it.status==="erro") it.status = "na fila";
+  if (items.length && !busy) runQueue();
 }
 
 /* ---------------- ZIP ---------------- */
@@ -510,11 +706,58 @@ function setFmt(f){
   outFmt = f;
   fmtJpg.classList.toggle("on", f==="jpg");
   fmtPng.classList.toggle("on", f==="png");
-  for (const it of items) if (it.status==="pronto" || it.status==="erro") it.status = "na fila";
-  if (items.length && !busy) runQueue();
+  fmtWebp.classList.toggle("on", f==="webp");
+  qwrap.classList.toggle("off", f==="png");
+  wwrap.classList.toggle("off", f==="png");
+  fmtNote.classList.toggle("on", f==="png");
+  reprocessAll();
+  if (!items.length) render();
 }
 fmtJpg.addEventListener("click", ()=>setFmt("jpg"));
 fmtPng.addEventListener("click", ()=>setFmt("png"));
+fmtWebp.addEventListener("click", ()=>setFmt("webp"));
+
+/* ---------------- modo Pro ---------------- */
+proBtn.addEventListener("click", () => {
+  pro = !pro;
+  proBtn.classList.toggle("on", pro);
+  proBtn.setAttribute("aria-pressed", String(pro));
+  proPanel.classList.toggle("on", pro);
+  fmtWebp.classList.toggle("hidden", !pro);
+  if (!pro){
+    // voltar às predefinições do modo normal
+    let changed = false;
+    if (outFmt === "webp"){ setFmt("jpg"); changed = false; } // setFmt já reprocessa
+    if (parseInt(quality.value,10) !== DEFAULT_Q){ quality.value = DEFAULT_Q; qval.textContent = DEFAULT_Q+"%"; changed = true; }
+    const hv = parseInt(theight.value,10);
+    if (hv !== DEFAULT_H){ theight.value = DEFAULT_H; changed = true; }
+    if (tweight.value !== ""){ tweight.value = ""; changed = true; }
+    renameIn.value = "";
+    if (changed) reprocessAll();
+  }
+  render();
+});
+
+/* ---------------- controlos Pro ---------------- */
+quality.addEventListener("input", ()=>{ qval.textContent = quality.value + "%"; });
+quality.addEventListener("change", ()=>{ if (outFmt!=="png") reprocessAll(); });
+theight.addEventListener("change", ()=>{
+  let v = parseInt(theight.value,10);
+  if (!Number.isFinite(v)) v = DEFAULT_H;
+  v = Math.min(6000, Math.max(200, v));
+  theight.value = v;
+  reprocessAll();
+});
+tweight.addEventListener("change", ()=>{
+  if (tweight.value !== ""){
+    let v = parseInt(tweight.value,10);
+    if (!Number.isFinite(v) || v < 30) v = 30;
+    if (v > 10000) v = 10000;
+    tweight.value = v;
+  }
+  if (outFmt!=="png") reprocessAll(); else render();
+});
+renameIn.addEventListener("input", render);   // só muda nomes, não reprocessa
 
 /* ---------------- drag & drop ---------------- */
 drop.addEventListener("click", ()=>fileInput.click());
